@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Scholara — Academic Q&A</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,700;0,9..144,900;1,9..144,400&family=Syne:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <div class="cursor-glow" id="cursorGlow"></div>
+  <canvas id="particles"></canvas>
+
+  <!-- NAVBAR -->
+  <nav id="navbar">
+    <div class="nav-inner">
+      <div class="logo">
+        <span class="logo-icon">⬡</span>
+        <span class="logo-text">Schol<em>ara</em></span>
+      </div>
+      <div class="nav-search-wrap">
+        <div class="nav-search">
+          <svg class="search-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" id="globalSearch" placeholder="Search questions, tags, subjects…" oninput="handleSearch(this.value)" autocomplete="off">
+          <kbd class="search-kbd">/</kbd>
+        </div>
+        <div class="search-dropdown" id="searchDropdown"></div>
+      </div>
+      <div class="nav-right">
+        <button class="nav-btn" onclick="showModal('loginModal')">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          Sign In
+        </button>
+        <button class="btn-ask" onclick="showModal('askModal')">
+          <span class="plus-icon">+</span> Ask Question
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <div class="hero" id="hero">
+    <div class="hero-content">
+      <div class="hero-badge">🎓 Knowledge Repository</div>
+      <h1 class="hero-title">Where Curiosity<br><em>Finds Answers</em></h1>
+      <p class="hero-sub">Post doubts, tag subjects, upvote answers and build your reputation in a thriving academic community.</p>
+      <div class="hero-stats">
+        <div class="hstat"><span class="hstat-num" id="hstatQ">6</span><span class="hstat-lbl">Questions</span></div>
+        <div class="hstat-sep"></div>
+        <div class="hstat"><span class="hstat-num">148</span><span class="hstat-lbl">Students</span></div>
+        <div class="hstat-sep"></div>
+        <div class="hstat"><span class="hstat-num" id="hstatA">8</span><span class="hstat-lbl">Answers</span></div>
+      </div>
+    </div>
+    <div class="hero-orb orb1"></div>
+    <div class="hero-orb orb2"></div>
+    <div class="hero-orb orb3"></div>
+  </div>
+
+  <!-- LAYOUT -->
+  <div class="layout">
+
+    <!-- LEFT SIDEBAR -->
+    <aside class="sidebar-left">
+      <div class="sb-section">
+        <div class="sb-label">Browse</div>
+        <div class="sb-link active" onclick="setFilter('all', this)">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>
+          All Questions
+        </div>
+        <div class="sb-link" onclick="setFilter('unanswered', this)">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          Unanswered
+          <span class="sb-badge" id="unansweredCount">0</span>
+        </div>
+        <div class="sb-link" onclick="setFilter('answered', this)">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+          Solved
+        </div>
+        <div class="sb-link" onclick="setFilter('hot', this)">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2c0 4-4 6-4 10a4 4 0 008 0c0-4-4-6-4-10z"/></svg>
+          Trending 🔥
+        </div>
+      </div>
+      <div class="sb-section">
+        <div class="sb-label">Subjects</div>
+        <div class="subject-tags">
+          <span class="stag math" onclick="filterByTag('mathematics')">∑ Mathematics</span>
+          <span class="stag physics" onclick="filterByTag('physics')">⚛ Physics</span>
+          <span class="stag cs" onclick="filterByTag('computer-science')">⌨ CS</span>
+          <span class="stag chem" onclick="filterByTag('chemistry')">⚗ Chemistry</span>
+          <span class="stag bio" onclick="filterByTag('biology')">🧬 Biology</span>
+          <span class="stag eng" onclick="filterByTag('english')">📚 English</span>
+        </div>
+      </div>
+      <div class="sb-section">
+        <div class="sb-label">Your Activity</div>
+        <div class="activity-card">
+          <div class="act-row"><span>Questions</span><span class="act-val">0</span></div>
+          <div class="act-row"><span>Answers</span><span class="act-val">0</span></div>
+          <div class="act-row"><span>Reputation</span><span class="act-val gold">1</span></div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="main">
+      <div class="main-toolbar">
+        <div class="toolbar-left">
+          <h2 class="page-title" id="pageTitle">All Questions</h2>
+          <span class="q-count" id="questionCount"></span>
+        </div>
+        <div class="toolbar-right">
+          <div class="sort-group">
+            <button class="sort-btn active" onclick="setSortFilter('newest', this)">Newest</button>
+            <button class="sort-btn" onclick="setSortFilter('votes', this)">Top Voted</button>
+            <button class="sort-btn" onclick="setSortFilter('answers', this)">Most Answered</button>
+          </div>
+        </div>
+      </div>
+      <div id="questionList" class="question-list"></div>
+    </main>
+
+    <!-- RIGHT SIDEBAR -->
+    <aside class="sidebar-right">
+      <div class="widget">
+        <div class="widget-title">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          Top Contributors
+        </div>
+        <div id="leaderboard" class="leaderboard"></div>
+      </div>
+      <div class="widget">
+        <div class="widget-title">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+          Hot Tags
+        </div>
+        <div id="trendingTags" class="trending-list"></div>
+      </div>
+      <div class="widget">
+        <div class="widget-title">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          Recent Activity
+        </div>
+        <div id="recentActivity" class="activity-feed"></div>
+      </div>
+    </aside>
+  </div>
+
+  <!-- ASK MODAL -->
+  <div class="modal-overlay" id="askModal">
+    <div class="modal modal-large">
+      <div class="modal-header">
+        <div class="modal-title-wrap">
+          <div class="modal-icon">✦</div>
+          <h2>Ask a Question</h2>
+        </div>
+        <button class="close-btn" onclick="closeModal('askModal')">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">Question Title <span class="req">*</span></label>
+          <input type="text" class="form-input" id="qTitle" placeholder="e.g. How do I solve a quadratic using the quadratic formula?">
+          <div class="form-hint">Be specific and imagine you're asking a professor.</div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Detailed Description <span class="req">*</span></label>
+          <div class="editor-wrap">
+            <div class="editor-toolbar">
+              <button class="tb-btn" onclick="insertMd('askBody','**','**')"><b>B</b></button>
+              <button class="tb-btn" onclick="insertMd('askBody','*','*')"><i>I</i></button>
+              <button class="tb-btn tb-mono" onclick="insertMd('askBody','`','`')">&lt;/&gt;</button>
+              <div class="tb-sep"></div>
+              <button class="tb-btn" onclick="insertMd('askBody','\n```\n','\n```\n')">⊞</button>
+              <button class="tb-btn" onclick="insertMd('askBody','> ','')">❝</button>
+              <button class="tb-btn" onclick="insertMd('askBody','## ','')">H</button>
+              <button class="tb-btn" onclick="insertMd('askBody','- ','')">≡</button>
+              <div class="tb-sep"></div>
+              <button class="tb-btn tb-preview" onclick="togglePreview('askBody','askPreview','askPreviewBtn')" id="askPreviewBtn">Preview</button>
+            </div>
+            <textarea class="form-textarea" id="askBody" rows="9" placeholder="Describe your problem. Markdown is supported."></textarea>
+            <div id="askPreview" class="md-preview hidden"></div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Tags</label>
+          <input type="text" class="form-input" id="qTags" placeholder="mathematics, calculus, integration (comma-separated)">
+          <div class="form-hint">Up to 5 subject tags.</div>
+        </div>
+        <div class="modal-actions">
+          <button class="btn-cancel" onclick="closeModal('askModal')">Cancel</button>
+          <button class="btn-submit" onclick="submitQuestion()">
+            <span>Post Question</span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DETAIL MODAL -->
+  <div class="modal-overlay" id="detailModal">
+    <div class="modal modal-xl">
+      <div class="modal-header">
+        <div class="modal-title-wrap">
+          <div class="modal-icon">◈</div>
+          <h2>Question & Answers</h2>
+        </div>
+        <button class="close-btn" onclick="closeModal('detailModal')">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <div class="modal-body" id="detailContent"></div>
+    </div>
+  </div>
+
+  <!-- LOGIN MODAL -->
+  <div class="modal-overlay" id="loginModal">
+    <div class="modal modal-sm">
+      <div class="modal-header">
+        <div class="modal-title-wrap">
+          <div class="modal-icon">◉</div>
+          <h2 id="authTitle">Welcome Back</h2>
+        </div>
+        <button class="close-btn" onclick="closeModal('loginModal')">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="auth-tabs">
+          <button class="auth-tab active" onclick="switchAuthTab('login', this)">Log In</button>
+          <button class="auth-tab" onclick="switchAuthTab('signup', this)">Sign Up</button>
+        </div>
+        <div id="loginForm">
+          <div class="form-group">
+            <label class="form-label">Email</label>
+            <input type="email" class="form-input" placeholder="you@university.edu">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Password</label>
+            <input type="password" class="form-input" placeholder="••••••••">
+          </div>
+          <button class="btn-submit full" onclick="fakeLogin()">Log In →</button>
+        </div>
+        <div id="signupForm" class="hidden">
+          <div class="form-group">
+            <label class="form-label">Display Name</label>
+            <input type="text" class="form-input" placeholder="e.g. Alex Chen">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Email</label>
+            <input type="email" class="form-input" placeholder="you@university.edu">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Password</label>
+            <input type="password" class="form-input" placeholder="min. 8 characters">
+          </div>
+          <button class="btn-submit full" onclick="fakeLogin()">Create Account →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST -->
+  <div class="toast" id="toast">
+    <span class="toast-icon">✦</span>
+    <span id="toastMsg"></span>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.6/marked.min.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
